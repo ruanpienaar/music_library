@@ -1,0 +1,21 @@
+<div class="space-y-8">
+  <h1 class="text-2xl font-bold text-zinc-900">Recent Tracks</h1>
+
+  <%= if @tracks == [] do %>
+    <p class="text-zinc-500">No tracks yet. Run a sync to fetch your scrobble history.</p>
+  <% else %>
+    <.table id="tracks" rows={@tracks}>
+      <:col :let={track} label="Title">
+        <a href={track.url} target="_blank" rel="noopener noreferrer"
+           class="text-blue-600 hover:underline">
+          {track.name}
+        </a>
+      </:col>
+      <:col :let={track} label="Artist">{track.artist}</:col>
+      <:col :let={track} label="Album">{track.album}</:col>
+      <:col :let={track} label="Listened">
+        {Calendar.strftime(track.listened_at, "%d %b %Y %H:%M")}
+      </:col>
+    </.table>
+  <% end %>
+</div>
