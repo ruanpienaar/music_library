@@ -17,8 +17,12 @@ defmodule MusicLibraryWeb.Router do
   scope "/", MusicLibraryWeb do
     pipe_through :browser
 
-    live "/", ArtistLive
+    live "/", DashboardLive
+    live "/artists", ArtistLive
     live "/tracks", TrackLive
+    live "/today", TodayLive
+    live "/on-this-day", OnThisDayLive
+    live "/decades", DecadesLive
   end
 
   # Other scopes may use custom stacks.

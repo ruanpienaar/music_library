@@ -1,38 +1,35 @@
 # MusicLibrary
 
-## Applicaiton layers
+A personal music library app built with Phoenix/LiveView and PostgreSQL. Syncs scrobble history from Last.fm and provides a local interface to browse and manage your listening data.
 
-This application is specifically built with abstraction layers making it possible to interact in various ways.
+## Stack
 
-Web -> Api -> Backend -> Schema
+- **Phoenix 1.7 / LiveView** — web UI
+- **PostgreSQL / Ecto** — data persistence
+- **Last.fm API** — scrobble sync
 
-### Web layer
+## Running Locally
 
-Phoenix/LiveView interaction to the app
+Web UI: [http://localhost:4000](http://localhost:4000)
 
-### Api layer
+## Architecture
 
-External/other parties attempting to read/write into the app
+The app is built in distinct layers:
 
-### Backend layer
+| Layer | Path | Purpose |
+| --- | --- | --- |
+| Web | LiveView / controllers | UI and HTTP endpoints |
+| API | `lib/music_library/api/` | Internal API surface |
+| Query | `lib/music_library/query/` | Ecto query functions |
+| Schema | `lib/music_library/schema/` | Ecto schemas + changesets |
 
-Other bits of code that needs to interact with other bits of the code
+Request flow: **Web → API → Query → Schema**
 
-## Ecto/Schema layer
+---
 
-the lowest level implementation with ecto code
+## API Reference
 
-## Web
-
-[http://localhost:4000/](http://localhost:4000/)
-
-Enter arist name
-
-Click "Add Artist"
-
-## API
-
-### RESTful
+### RESTful Methods
 
 | Method | Purpose |
 | ------ | ------- |
@@ -44,36 +41,47 @@ Click "Add Artist"
 | HEAD | Like GET, but returns headers only (no body) |
 | OPTIONS | Describe what methods the server supports for a resource |
 
-### Get Artist
+### Examples
 
-`curl -XGET -vvv http://localhost:4000/api/1/artist/Ladytron`
+```bash
+# Get artist
+curl -XGET -vvv http://localhost:4000/api/1/artist/Ladytron
 
-### Create Artist
+# Create artist
+curl -XPOST -H "Content-Type: application/json" -vvv http://localhost:4000/api/1/artist -d "{\"name\":\"Ladytron\"}"
 
-`curl -XPOST -H "Content-Type: application/json" -vvv http://localhost:4000/api/1/artist -d "{\"name\":\"Ladytron\"}"`
-
-### Delete Artist
-
-`curl -XDELETE -H "Content-Type: application/json" -vvv http://localhost:4000/api/1/delete -d "{\"type\":\"artist\", \"name\":\"Ladytron\"}"`
-
-## Backend
-
-```Elixir
-MusicLibrary.Api.Artist.post(%{"name" => "Ladytron"})
+# Delete artist
+curl -XDELETE -H "Content-Type: application/json" -vvv http://localhost:4000/api/1/delete -d "{\"type\":\"artist\", \"name\":\"Ladytron\"}"
 ```
 
-## Ecto/Schema
+### Internal (IEx / backend)
 
-```Elixir
+```elixir
+MusicLibrary.Api.Artist.post(%{"name" => "Ladytron"})
 MusicLibrary.Query.Artist.insert(params)
 ```
 
+## Last.Fm notes
 
+### When songs get scrobbled
 
+According to Last.fm's own API documentation, there are two conditions for a scrobble to count:
 
-use the medium image ( 64 x 64 ) from the json
+The track must be longer than 30 seconds. Last.fm
+You need to have listened to either 4 minutes or 50% of the track's duration, whichever comes first. This is the standard scrobbling rule that's been in place for years (it's in the API spec, just not shown verbatim in those results, but well-established in the community).
 
-example entry of listened to:
+The Spotify scrobbler saves the scrobble to your listening history once enough percentage of the song has been played. Spotify Community
+So in short — no, skipping a song early won't scrobble it. You need to hit that 50% mark (or 4 minutes, for longer tracks). If you skip after, say, 10 seconds of a 3-minute song, it won't count.
+
+---
+
+## Notes
+
+### Last.fm Track Payload
+
+Use the `medium` image (64×64) from the `image` array. Example scrobble entry:
+
+```json
 {
     "url": "https://www.last.fm/music/Groove+Armada/_/Get+Down+-+Elite+Force+Remix",
     "date": {
@@ -87,22 +95,10 @@ example entry of listened to:
         "#text": "Get Down Mixes"
     },
     "image": [
-        {
-            "size": "small",
-            "#text": "https://lastfm.freetls.fastly.net/i/u/34s/2a96cbd8b46e442fc41c2b86b821562f.png"
-        },
-        {
-            "size": "medium",
-            "#text": "https://lastfm.freetls.fastly.net/i/u/64s/2a96cbd8b46e442fc41c2b86b821562f.png"
-        },
-        {
-            "size": "large",
-            "#text": "https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86b821562f.png"
-        },
-        {
-            "size": "extralarge",
-            "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/2a96cbd8b46e442fc41c2b86b821562f.png"
-        }
+        { "size": "small",      "#text": "https://lastfm.freetls.fastly.net/i/u/34s/2a96cbd8b46e442fc41c2b86b821562f.png" },
+        { "size": "medium",     "#text": "https://lastfm.freetls.fastly.net/i/u/64s/2a96cbd8b46e442fc41c2b86b821562f.png" },
+        { "size": "large",      "#text": "https://lastfm.freetls.fastly.net/i/u/174s/2a96cbd8b46e442fc41c2b86b821562f.png" },
+        { "size": "extralarge", "#text": "https://lastfm.freetls.fastly.net/i/u/300x300/2a96cbd8b46e442fc41c2b86b821562f.png" }
     ],
     "artist": {
         "mbid": "",
@@ -110,12 +106,13 @@ example entry of listened to:
     },
     "streamable": "0"
 }
+```
 
+### Find Gap Days (SQL)
 
+Identifies days in the listening history where there are gaps — useful for spotting missing scrobble data.
 
-
-Find gap days
-
+```sql
 WITH data_days AS (
   SELECT DISTINCT listened_at::date AS day
   FROM track
@@ -129,3 +126,12 @@ gaps AS (
 SELECT * FROM gaps
 WHERE gap_days > 0
 ORDER BY day;
+```
+
+### Find Artist count
+
+```sql
+select name, ( select count(*) from track as t where art.id = t.artist_id ) as trkc from artist as art ORDER BY trkc DESC;
+```
+
+

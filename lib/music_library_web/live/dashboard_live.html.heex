@@ -1,0 +1,86 @@
+<div class="space-y-10">
+  <div class="flex items-center justify-between">
+    <h1 class="text-3xl font-bold text-zinc-900">Dashboard</h1>
+    <.link navigate="/on-this-day" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">
+      On This Day
+    </.link>
+  </div>
+
+  <%!-- Summary stat cards --%>
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+      <p class="text-sm font-medium text-zinc-500">Total Scrobbles</p>
+      <p class="mt-1 text-4xl font-bold text-zinc-900"><%= @total_scrobbles %></p>
+    </div>
+    <div class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+      <p class="text-sm font-medium text-zinc-500">Artists</p>
+      <p class="mt-1 text-4xl font-bold text-zinc-900"><%= @total_artists %></p>
+    </div>
+    <div class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+      <p class="text-sm font-medium text-zinc-500">Albums</p>
+      <p class="mt-1 text-4xl font-bold text-zinc-900"><%= @total_albums %></p>
+    </div>
+  </div>
+
+  <%!-- Top three tables side by side --%>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <%!-- Top Artists --%>
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-sm">
+      <div class="border-b border-zinc-100 px-5 py-4">
+        <h2 class="text-base font-semibold text-zinc-900">Top Artists</h2>
+      </div>
+      <ol class="divide-y divide-zinc-100">
+        <%= for {artist, i} <- Enum.with_index(@top_artists, 1) do %>
+          <li class="flex items-center gap-3 px-5 py-3">
+            <span class="w-5 text-right text-xs font-medium text-zinc-400"><%= i %></span>
+            <span class="flex-1 truncate text-sm text-zinc-800"><%= artist.name %></span>
+            <span class="text-xs font-semibold text-zinc-500"><%= artist.count %></span>
+          </li>
+        <% end %>
+      </ol>
+    </div>
+
+    <%!-- Top Albums --%>
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-sm">
+      <div class="border-b border-zinc-100 px-5 py-4">
+        <h2 class="text-base font-semibold text-zinc-900">Top Albums</h2>
+      </div>
+      <ol class="divide-y divide-zinc-100">
+        <%= for {album, i} <- Enum.with_index(@top_albums, 1) do %>
+          <li class="flex items-center gap-3 px-5 py-3">
+            <span class="w-5 text-right text-xs font-medium text-zinc-400"><%= i %></span>
+            <%= if album.cover_url && album.cover_url != "" do %>
+              <img src={album.cover_url} alt={album.name} class="h-8 w-8 flex-shrink-0 rounded object-cover" />
+            <% else %>
+              <div class="h-8 w-8 flex-shrink-0 rounded bg-zinc-100"></div>
+            <% end %>
+            <div class="flex-1 min-w-0">
+              <p class="truncate text-sm text-zinc-800"><%= album.name %></p>
+              <p class="truncate text-xs text-zinc-400"><%= album.artist %></p>
+            </div>
+            <span class="text-xs font-semibold text-zinc-500"><%= album.count %></span>
+          </li>
+        <% end %>
+      </ol>
+    </div>
+
+    <%!-- Top Tracks --%>
+    <div class="rounded-xl border border-zinc-200 bg-white shadow-sm">
+      <div class="border-b border-zinc-100 px-5 py-4">
+        <h2 class="text-base font-semibold text-zinc-900">Top Tracks</h2>
+      </div>
+      <ol class="divide-y divide-zinc-100">
+        <%= for {track, i} <- Enum.with_index(@top_tracks, 1) do %>
+          <li class="flex items-center gap-3 px-5 py-3">
+            <span class="w-5 text-right text-xs font-medium text-zinc-400"><%= i %></span>
+            <div class="flex-1 min-w-0">
+              <a href={track.url} target="_blank" rel="noopener" class="block truncate text-sm text-indigo-600 hover:underline"><%= track.name %></a>
+              <p class="truncate text-xs text-zinc-400"><%= track.artist %></p>
+            </div>
+            <span class="text-xs font-semibold text-zinc-500"><%= track.count %></span>
+          </li>
+        <% end %>
+      </ol>
+    </div>
+  </div>
+</div>

@@ -25,7 +25,7 @@ defmodule MusicLibrary.LastFm.PeriodicFetcher do
 
   def handle_event(:enter, old_state, _new_state = :idle, _data)
       when old_state == :idle or old_state == :running do
-    {:keep_state_and_data, [{:state_timeout, :timer.seconds(10), :request_tracks_from_last_fm}]}
+    {:keep_state_and_data, [{:state_timeout, :timer.minutes(1), :request_tracks_from_last_fm}]}
   end
 
   def handle_event(:enter, _old_state = :idle, _new_state = :running, _data) do

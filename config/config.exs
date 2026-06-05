@@ -11,7 +11,7 @@ config :music_library,
   ecto_repos: [MusicLibrary.Repo],
   generators: [timestamp_type: :utc_datetime],
   last_fm: [
-    api_key: "d6bc9b5d5f137b3dfc4caf0fdf3b818a",
+    api_key: "LAST_FM_API_KEY_GOES_HERE",
     username: "ruan800"
   ]
 
