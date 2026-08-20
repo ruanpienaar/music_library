@@ -12,6 +12,10 @@ defmodule MusicLibrary.LastFm.Client do
 
   # ( Bumped it to 1s to be safe ) Last.fm allows ~5 req/sec; 250ms gives us 4/sec with a safe margin
   @rate_limit_ms 5000
+  # 4 mins - the average length of a single song, we're not going to be listening to music at
+  # speeds above 1x, so might as well wait the average length of a single song,
+  # before asking for new listened tracks
+  @slow_wait_ms 240_000
 
   def get(method, params \\ %{}) do
     query =
@@ -40,6 +44,7 @@ defmodule MusicLibrary.LastFm.Client do
 
   def username, do: Application.fetch_env!(:music_library, :last_fm)[:username]
   def rate_limit_ms, do: @rate_limit_ms
+  def slow_wait, do: @slow_wait_ms
   def api_version, do: @api_version
 
   defp api_key, do: Application.fetch_env!(:music_library, :last_fm)[:api_key]

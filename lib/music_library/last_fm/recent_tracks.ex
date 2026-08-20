@@ -16,6 +16,7 @@ defmodule MusicLibrary.LastFm.RecentTracks do
     from_ts = LastFmRawTrack.latest_listened_at()
 
     Logger.info("Fetching Last.fm recent tracks — page 1")
+
     {:ok, %{tracks: page1_tracks, total_pages: total_pages}} =
       fetch_page_with_retry(1, @page_size, from_ts)
 
@@ -62,15 +63,16 @@ defmodule MusicLibrary.LastFm.RecentTracks do
         ok
 
       {:error, reason} ->
-        Logger.warning("Page #{page} failed (#{inspect(reason)}), retrying in #{@retry_delay_ms}ms...")
+        Logger.warning(
+          "Page #{page} failed (#{inspect(reason)}), retrying in #{@retry_delay_ms}ms..."
+        )
+
         Process.sleep(@retry_delay_ms)
         fetch_page_with_retry(page, limit, from_ts)
     end
   end
 
-  defp parse_response(
-         {:ok, %{"recenttracks" => %{"track" => tracks, "@attr" => attrs}}}
-       ) do
+  defp parse_response({:ok, %{"recenttracks" => %{"track" => tracks, "@attr" => attrs}}}) do
     raw_tracks = Enum.reject(tracks, &nowplaying?/1)
 
     {:ok,

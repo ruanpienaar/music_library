@@ -20,7 +20,7 @@ defmodule MusicLibrary.Schema.Album do
 
   def changeset(album, params \\ %{}) do
     album
-    |> cast(params, [:name, :album_cover_url, :artist_id])
+    |> cast(params, [:name, :album_cover_url, :mbid, :artist_id])
     |> validate_required([:name, :album_cover_url, :artist_id])
     |> unique_constraint([:name, :artist_id])
   end

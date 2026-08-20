@@ -2,7 +2,7 @@
   <%= for album <- @albums do %>
     <div class="w-16 h-16 overflow-hidden flex-shrink-0">
       <img
-        src={album.album_file_location}
+        src={album.file_path}
         alt={album.artist}
         title={"#{album.artist} — #{album.name}"}
         class="h-full w-full object-cover"
@@ -11,3 +11,9 @@
     </div>
   <% end %>
 </div>
+
+<%= if @albums == [] do %>
+  <div class="flex items-center justify-center h-64 text-zinc-400">
+    No local covers yet — the downloader is working in the background.
+  </div>
+<% end %>

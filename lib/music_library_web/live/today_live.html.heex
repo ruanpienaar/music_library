@@ -2,7 +2,7 @@
   <div class="flex items-center justify-between">
     <div>
       <h1 class="text-3xl font-bold text-zinc-900">Today</h1>
-      <p class="mt-1 text-sm text-zinc-500"><%= @date_label %></p>
+      <p class="mt-1 text-sm text-zinc-500">{@date_label}</p>
     </div>
     <.link navigate="/" class="text-sm text-zinc-500 hover:text-zinc-800">← Dashboard</.link>
   </div>
@@ -11,18 +11,23 @@
     <p class="text-sm text-zinc-400">Nothing scrobbled yet today.</p>
   <% else %>
     <div>
-      <p class="mb-4 text-sm text-zinc-500"><%= @count %> scrobble<%= if @count != 1, do: "s" %> today</p>
+      <p class="mb-4 text-sm text-zinc-500">{@count} scrobble{if @count != 1, do: "s"} today</p>
       <ul class="divide-y divide-zinc-100 rounded-xl border border-zinc-200 bg-white shadow-sm">
         <%= for track <- @tracks do %>
           <li class="flex items-center gap-3 px-4 py-2.5">
             <div class="flex-1 min-w-0">
-              <a href={track.url} target="_blank" rel="noopener" class="block truncate text-sm font-medium text-indigo-600 hover:underline">
-                <%= track.name %>
+              <a
+                href={track.url}
+                target="_blank"
+                rel="noopener"
+                class="block truncate text-sm font-medium text-indigo-600 hover:underline"
+              >
+                {track.name}
               </a>
-              <p class="truncate text-xs text-zinc-400"><%= track.artist %> — <%= track.album %></p>
+              <p class="truncate text-xs text-zinc-400">{track.artist} — {track.album}</p>
             </div>
             <span class="flex-shrink-0 text-xs text-zinc-400">
-              <%= Calendar.strftime(track.listened_at, "%-H:%M") %>
+              {Calendar.strftime(track.listened_at, "%-H:%M")}
             </span>
           </li>
         <% end %>

@@ -23,6 +23,9 @@ defmodule MusicLibraryWeb.Router do
     live "/today", TodayLive
     live "/on-this-day", OnThisDayLive
     live "/decades", DecadesLive
+    live "/collage", CollageLive
+
+    get "/covers/:filename", CoverController, :show
   end
 
   # Other scopes may use custom stacks.

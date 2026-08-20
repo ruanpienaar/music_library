@@ -2,7 +2,7 @@
   <div class="flex items-center justify-between">
     <div>
       <h1 class="text-3xl font-bold text-zinc-900">On This Day</h1>
-      <p class="mt-1 text-sm text-zinc-500"><%= @date_label %></p>
+      <p class="mt-1 text-sm text-zinc-500">{@date_label}</p>
     </div>
     <.link navigate="/" class="text-sm text-zinc-500 hover:text-zinc-800">← Dashboard</.link>
   </div>
@@ -10,50 +10,75 @@
   <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
     <%!-- Your listening history --%>
     <div>
-      <h2 class="mb-4 text-lg font-semibold text-zinc-900">Your Listening History</h2>
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-zinc-900">Your Listening History</h2>
 
-      <%= if @scrobbles_by_year == [] do %>
+        <%= if @years != [] do %>
+          <form phx-change="select_year">
+            <select
+              name="year"
+              class="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <%= for year <- @years do %>
+                <option value={year} selected={year == @selected_year}>{year}</option>
+              <% end %>
+            </select>
+          </form>
+        <% end %>
+      </div>
+
+      <%= if @years == [] do %>
         <p class="text-sm text-zinc-400">No scrobbles recorded on this date.</p>
       <% else %>
-        <div class="space-y-6">
-          <%= for {year, tracks} <- @scrobbles_by_year do %>
-            <div>
-              <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-500"><%= year %></h3>
-              <ul class="divide-y divide-zinc-100 rounded-xl border border-zinc-200 bg-white shadow-sm">
-                <%= for track <- tracks do %>
-                  <li class="flex items-center gap-3 px-4 py-2.5">
-                    <div class="flex-1 min-w-0">
-                      <a href={track.url} target="_blank" rel="noopener" class="block truncate text-sm font-medium text-indigo-600 hover:underline">
-                        <%= track.name %>
-                      </a>
-                      <p class="truncate text-xs text-zinc-400"><%= track.artist %> — <%= track.album %></p>
-                    </div>
-                    <span class="flex-shrink-0 text-xs text-zinc-400">
-                      <%= Calendar.strftime(track.listened_at, "%-H:%M") %>
-                    </span>
-                  </li>
-                <% end %>
-              </ul>
-            </div>
+        <% selected_tracks =
+          @scrobbles_by_year
+          |> Enum.find(fn {y, _} -> y == @selected_year end)
+          |> case do
+            {_, tracks} -> tracks
+            nil -> []
+          end %>
+        <ul class="divide-y divide-zinc-100 rounded-xl border border-zinc-200 bg-white shadow-sm">
+          <%= for track <- selected_tracks do %>
+            <li class="flex items-center gap-3 px-4 py-2.5">
+              <div class="flex-1 min-w-0">
+                <a
+                  href={track.url}
+                  target="_blank"
+                  rel="noopener"
+                  class="block truncate text-sm font-medium text-indigo-600 hover:underline"
+                >
+                  {track.name}
+                </a>
+                <p class="truncate text-xs text-zinc-400">{track.artist} — {track.album}</p>
+              </div>
+              <span class="flex-shrink-0 text-xs text-zinc-400">
+                {Calendar.strftime(track.listened_at, "%-H:%M")}
+              </span>
+            </li>
           <% end %>
-        </div>
+        </ul>
       <% end %>
     </div>
 
-    <%!-- Wikipedia events --%>
+    <%!-- Wikipedia births --%>
     <div>
-      <h2 class="mb-4 text-lg font-semibold text-zinc-900">Notable Events in History</h2>
+      <h2 class="mb-4 text-lg font-semibold text-zinc-900">Born On This Day</h2>
 
-      <%= if @wiki_events == [] do %>
-        <p class="text-sm text-zinc-400">Could not load Wikipedia events.</p>
+      <%= if @wiki_births == [] do %>
+        <p class="text-sm text-zinc-400">Could not load Wikipedia births.</p>
       <% else %>
         <ul class="space-y-3">
-          <%= for event <- @wiki_events do %>
+          <%= for person <- @wiki_births do %>
             <li class="rounded-xl border border-zinc-200 bg-white px-5 py-4 shadow-sm">
-              <span class="text-xs font-semibold text-indigo-600"><%= event.year %></span>
-              <p class="mt-1 text-sm text-zinc-700"><%= event.text %></p>
-              <%= if event.url do %>
-                <a href={event.url} target="_blank" rel="noopener" class="mt-1 inline-block text-xs text-zinc-400 hover:text-indigo-600">
+              <span class="text-xs font-semibold text-indigo-600">{person.year}</span>
+              <p class="mt-1 text-sm text-zinc-700">{person.text}</p>
+              <%= if person.url do %>
+                <a
+                  href={person.url}
+                  target="_blank"
+                  rel="noopener"
+                  class="mt-1 inline-block text-xs text-zinc-400 hover:text-indigo-600"
+                >
                   Read more →
                 </a>
               <% end %>

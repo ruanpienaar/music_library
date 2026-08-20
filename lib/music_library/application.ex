@@ -23,9 +23,10 @@ defmodule MusicLibrary.Application do
       # Start a worker by calling: MusicLibrary.Worker.start_link(arg)
       # {MusicLibrary.Worker, arg},
       # Start to serve requests, typically the last entry
-      MusicLibraryWeb.Endpoint,
       MusicLibrary.LastFm.PeriodicFetcher,
-      MusicLibrary.PeriodicDataGenerator
+      MusicLibrary.PeriodicDataGenerator,
+      MusicLibrary.AlbumCoverDownload,
+      MusicLibraryWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

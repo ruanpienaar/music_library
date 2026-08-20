@@ -6,8 +6,12 @@
   <% else %>
     <.table id="tracks" rows={@tracks}>
       <:col :let={track} label="Title">
-        <a href={track.url} target="_blank" rel="noopener noreferrer"
-           class="text-blue-600 hover:underline">
+        <a
+          href={track.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-blue-600 hover:underline"
+        >
           {track.name}
         </a>
       </:col>

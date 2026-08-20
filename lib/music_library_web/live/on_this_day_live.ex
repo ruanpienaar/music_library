@@ -11,14 +11,23 @@ defmodule MusicLibraryWeb.OnThisDayLive do
 
     scrobbles = TrackQuery.on_this_day(month, day)
     by_year = Enum.group_by(scrobbles, fn s -> s.listened_at.year end)
-    {:ok, wiki_events} = Wikipedia.fetch_events(month, day)
+    sorted = by_year |> Enum.sort_by(fn {y, _} -> y end, :desc)
+    years = Enum.map(sorted, fn {y, _} -> y end)
+    selected_year = List.first(years)
+    {:ok, wiki_births} = Wikipedia.fetch_births(month, day)
 
     socket =
       socket
       |> assign(:date_label, Calendar.strftime(today, "%B %-d"))
-      |> assign(:scrobbles_by_year, by_year |> Enum.sort_by(fn {y, _} -> y end, :desc))
-      |> assign(:wiki_events, wiki_events)
+      |> assign(:scrobbles_by_year, sorted)
+      |> assign(:years, years)
+      |> assign(:selected_year, selected_year)
+      |> assign(:wiki_births, wiki_births)
 
     {:ok, socket}
+  end
+
+  def handle_event("select_year", %{"year" => year}, socket) do
+    {:noreply, assign(socket, :selected_year, String.to_integer(year))}
   end
 end

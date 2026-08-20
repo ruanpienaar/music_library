@@ -28,7 +28,12 @@ defmodule MusicLibrary.Query.LastFmRawTrack do
         }
       end)
 
-    {count, _} = MusicLibrary.Repo.insert_all(@schema_mod, rows, on_conflict: :nothing, conflict_target: [:listened_at])
+    {count, _} =
+      MusicLibrary.Repo.insert_all(@schema_mod, rows,
+        on_conflict: :nothing,
+        conflict_target: [:listened_at]
+      )
+
     {:ok, count}
   end
 
